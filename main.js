@@ -15,6 +15,10 @@ const fetchApi = (value) => {
 }
 
 
-btnGo.addEventListener('click', () => {
-
+btnGo.addEventListener('click',async (event) => {
+    event.preventDefault()
+    const result = await fetchApi(characterId.value)
+    content.textContent = `${JSON.stringify(result, undefined, 2)}`
+    image.src = `${result.image}`
+    image.alt = `imagem do ${result.name}`
 })
