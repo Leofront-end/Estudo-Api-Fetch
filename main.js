@@ -9,7 +9,6 @@ const fetchApi = (value) => {
     const result = fetch(`https://rickandmortyapi.com/api/character/${value}`)
     .then((res) => res.json())
     .then((data) => {
-        console.log(data)
         return data
     })
 
@@ -17,23 +16,55 @@ const fetchApi = (value) => {
 }
 
 const keys = ['name', 'status', 'species', 'gender', 'origin', 'episode']
+const newKeys = {
+    name: 'Nome',
+    status: 'Status',
+    species: 'Espécie',
+    gender: 'Gênero',
+    origin: 'Planeta de Origem',
+    episode: 'Episódios'
+}
 
 const buildResult = (result) => {
-    const newObject = {}
-    keys.map((key) => document.getElementById(key))
+    return keys.map((key) => document.getElementById(key))
         .map((elem) => {
-            elem.checked && (newObject[elem.name] = result[elem.name])
+            if (elem.checked === true && (Array.isArray(result[elem.name])) === true) {
+                const arrayResult = result[elem.name].join('\r\n')
+                const newElem = document.createElement('p')
+                newElem.innerHTML = `${newKeys[elem.name]} : ${arrayResult}`
+                content.appendChild(newElem)
+            } else if (elem.checked === true && (elem.name === 'origin')) {
+                const newElem = document.createElement('p')
+                newElem.innerHTML = `${newKeys[elem.name]} : ${result[elem.name].name}`
+                content.appendChild(newElem)
+            } else if (elem.checked === true && typeof(result[elem.name]) !== 'object') {
+                const newElem = document.createElement('p')
+                newElem.innerHTML = `${newKeys[elem.name]} : ${result[elem.name]}`
+                content.appendChild(newElem)
+            }
         })
-
-
-    return newObject
 }
 
 btnGo.addEventListener('click',async (event) => {
     event.preventDefault()
+    if (characterId.value === '') {
+        return content.innerHTML = 'É necessario fazer um filtro'
+    }
     const result = await fetchApi(characterId.value)
     // content.textContent = `${JSON.stringify(result, undefined, 2)}`
-    content.textContent = `${JSON.stringify(buildResult(result), undefined, 2)}`
-    image.src = `${result.image}`
-    console.log(buildResult(result))
+
+    if (content.firstChild === null) {
+        containerResult.className = 'result-style'
+        image.src = `${result.image}`
+        buildResult(result)
+    } else {
+        content.innerHTML = ''
+        containerResult.className = 'result-style'
+        image.src = `${result.image}`
+        buildResult(result)
+    }
+
+    
 })
+
+btnReset.addEventListener('click', () => location.reload())
